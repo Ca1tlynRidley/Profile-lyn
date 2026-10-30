@@ -25,6 +25,8 @@ The layout file is config/profile-lyn/profile.json. You can also open editor/dis
 
 Names and descriptions support Minecraft color codes and placeholders such as {player}, {money}, and {level}. Menu actions can display a message, run a player command, refresh the menu, or close it.
 
+After editing your profile on the website, click Export and copy the layout code. Paste it in your server console.
+
 ## License
 
 Original code is licensed under MIT. Minecraft item preview textures belong to Mojang/Microsoft and are not covered by that license.
