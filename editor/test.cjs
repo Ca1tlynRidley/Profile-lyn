@@ -1,0 +1,13 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const C = require('./dist/core.js');
+require('./dist/catalog.js');require('./dist/default.js');
+const known = new Set(ITEM_CATALOG.map(i=>i.id));
+test('template round trips through the Minecraft import code, with Unicode',()=>{const layout=C.validate({...DEFAULT_LAYOUT,title:'Lyn ♥ 你好'},known);assert.deepEqual(C.decode(C.encode(layout),known),layout);});
+test('every catalog icon is local and exists',()=>{assert.ok(ITEM_CATALOG.length>1000);for(const item of ITEM_CATALOG)if(item.icon)assert.ok(fs.existsSync(__dirname+'/dist/'+item.icon),item.id);});
+test('moving to an occupied slot swaps the items without duplication',()=>{const layout=C.validate(DEFAULT_LAYOUT,known),moved=C.move(layout,22,49);assert.equal(moved.items.find(e=>e.slot===49).item,'minecraft:emerald');assert.equal(moved.items.find(e=>e.slot===22).item,'minecraft:barrier');assert.equal(layout.items.find(e=>e.slot===22).item,'minecraft:emerald');});
+test('rejects invalid slots, duplicates, unknown items and dangerous action types',()=>{const base={rows:1,items:[]};for(const items of [[{slot:9,item:'minecraft:emerald'}],[{slot:1,item:'minecraft:fake_item'}],[{slot:1,item:'minecraft:emerald',action:{type:'console'}}],[{slot:1,item:'minecraft:emerald'},{slot:1,item:'minecraft:barrier'}]])assert.throws(()=>C.validate({...base,items},known));});
+test('clear layout exports as empty with no filler',()=>{const result=C.validate({...DEFAULT_LAYOUT,items:[],filler:null},known);assert.deepEqual(result.items,[]);assert.equal(result.filler,null);});
+test('rejects corrupt, oversized and unsupported codes',()=>{for(const code of ['hello','ps1:!!!','ps1:'+'a'.repeat(30001)])assert.throws(()=>C.decode(code,known));assert.throws(()=>C.validate({schemaVersion:2,items:[]},known));});
+test('rejects fractional counts and multiline commands',()=>{assert.throws(()=>C.validate({items:[{slot:0,item:'minecraft:emerald',count:1.5}]},known));assert.throws(()=>C.validate({items:[{slot:0,item:'minecraft:emerald',action:{type:'command',value:'balance\nop Steve'}}]},known));});

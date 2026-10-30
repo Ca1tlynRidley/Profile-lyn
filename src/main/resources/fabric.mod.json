@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "profile_lyn",
+  "version": "${version}",
+  "name": "PROFILE-lyn",
+  "description": "A server-only /profile menu with a visual browser editor.",
+  "authors": [
+    "OCTMC"
+  ],
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "dev.octmc.profile.ProfileStudio"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "26.2",
+    "java": ">=25",
+    "fabric-api": "*",
+    "eco_api_lyn": ">=1.0.0"
+  },
+  "license": "MIT"
+}
