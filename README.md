@@ -1,6 +1,6 @@
 # PROFILE-lyn
 
-A profile menu mod for Minecraft Java 26.2 using Fabric. It displays player information and balances from ECO-API-lyn.
+A profile menu mod for Minecraft Java 26.2 using Fabric. It displays player information.
 
 ## Requirements
 
