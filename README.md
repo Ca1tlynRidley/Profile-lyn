@@ -12,7 +12,7 @@ A profile menu mod for Minecraft Java 26.2 using Fabric. It displays player info
 
 - ECO-API-lyn
 
-Install PROFILE-lyn on the server. ECO-API-lyn must be installed on both the server and players' clients. Display Currency in profile.
+Install PROFILE-lyn & ECO-API-lyn in the server.
 
 ## Usage
 
