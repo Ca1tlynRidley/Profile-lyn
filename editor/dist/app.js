@@ -2,8 +2,9 @@
   'use strict';
   const $ = id => document.getElementById(id), C = ProfileCore, catalog = ITEM_CATALOG;
   const byId = new Map(catalog.map(i=>[i.id,i])), known = new Set(byId.keys());
-  const KEY = 'profile-lyn-layout-v1';
-  let state = C.validate(DEFAULT_LAYOUT,known), selected = 22, filter = 'favorites', undo = [], redo = [], drag = null, lastText = $('lore'), toastTimer;
+  const initial = C.validate(globalThis.PROFILE_SERVER_LAYOUT ?? DEFAULT_LAYOUT,known);
+  const KEY = C.draftKey(initial,location.pathname);
+  let state = initial, selected = 22, filter = 'favorites', undo = [], redo = [], drag = null, lastText = $('lore'), toastTimer;
   const essentials = ['player_head','emerald','diamond','gold_ingot','iron_ingot','diamond_sword','netherite_sword','diamond_pickaxe','netherite_pickaxe','diamond_chestplate','book','writable_book','enchanted_book','map','filled_map','clock','compass','recovery_compass','ender_chest','chest','crafting_table','experience_bottle','name_tag','barrier','redstone_torch','redstone','paper','totem_of_undying','ender_pearl','ender_eye','nether_star','apple','golden_apple','cooked_beef','grass_block','oak_log','stone','amethyst_shard','heart_of_the_sea','firework_rocket','gray_stained_glass_pane','black_stained_glass_pane','lime_stained_glass_pane','red_stained_glass_pane','sunflower','beacon','bundle','elytra'].map(x=>'minecraft:'+x);
   const sample = {'{player}':'Steve','{money}':'$1,250.00','{level}':'24','{health}':'20','{food}':'20','{x}':'128','{y}':'64','{z}':'-256','{online}':'12','{uuid}':'00000000-0000-0000-0000-000000000000'};
   function preview(text) { for (const [token,value] of Object.entries(sample)) text = text.split(token).join(value); return text.replace(/\{score:[^}]+}/g,'42'); }
@@ -130,10 +131,9 @@
   document.querySelectorAll('[data-token]').forEach(b=>b.onclick=()=>insertToken(b.dataset.token));
   for(const token of Object.keys(sample)){const b=document.createElement('button');b.textContent=token;b.onclick=()=>{$('help-dialog').close();insertToken(token);};$('token-reference').append(b);}
   $('more-tokens').onclick=$('help-button').onclick=()=>$('help-dialog').showModal();
-  $('export-button').onclick=()=>{const code=C.encode(state),tooLong=code.length>C.MAX_CODE;$('export-code').value=tooLong?'This layout is too large for one command. Download profile.json below.':'/profile import '+code;$('copy-command').disabled=tooLong;$('copy-link').disabled=tooLong;$('code-warning').hidden=!tooLong;$('code-warning').textContent='Use the JSON file for layouts larger than 30,000 code characters.';$('export-dialog').showModal();};
+  $('export-button').onclick=()=>{const code=C.encode(state),tooLong=code.length>C.MAX_CODE;$('export-code').value=tooLong?'This layout is too large for one command. Download profile.json below.':'/profile import '+code;$('copy-command').disabled=tooLong;$('code-warning').hidden=!tooLong;$('code-warning').textContent='Use the JSON file for layouts larger than 30,000 code characters.';$('export-dialog').showModal();};
   $('copy-command').onclick=()=>copy($('export-code').value);
   $('download-json').onclick=download;
-  $('copy-link').onclick=()=>{if(location.protocol==='file:')return toast('Open the hosted editor to copy a shareable editor link.');copy(location.origin+location.pathname+'#layout='+C.encode(state));};
   $('import-button').onclick=()=>$('import-file').click();
   $('import-file').onchange=async()=>{const file=$('import-file').files[0];$('import-file').value='';if(!file)return;try{if(file.size>C.MAX_BYTES)throw new Error('JSON file exceeds 128 KiB.');const candidate=C.validate(JSON.parse(await file.text()),known);confirmChange('Import this layout?',`${candidate.title} · ${candidate.rows} rows · ${candidate.items.length} items. This replaces the current layout; undo is available.`,()=>{commit(candidate);toast('Layout imported');});}catch(e){toast(e.message);}};
   document.querySelectorAll('[data-close]').forEach(button=>button.onclick=()=>button.closest('dialog').close());$('confirm-cancel').onclick=()=>$('confirm-dialog').close();

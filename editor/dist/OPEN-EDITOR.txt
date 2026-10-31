@@ -1,0 +1,19 @@
+PROFILE-lyn local editor
+
+Open index.html in a normal web browser. Keep this entire editor folder together,
+including the icons folder and every JavaScript/CSS file. No website hosting,
+account, extra port or Internet connection is needed to edit the menu.
+
+The mod creates this folder automatically when the server starts. Run
+/profile editor as an operator to refresh its copy of the current server layout.
+On a hosted server, download config/profile-lyn/profile-editor.zip to your PC,
+extract it, and open editor/index.html. You can also download the entire editor
+folder instead. Downloading index.html alone is not enough.
+
+After editing, choose Export to server > Copy import command. Run the command in
+Minecraft chat as an operator, or paste it into the server console WITHOUT its
+leading /. You can also download profile.json, upload it to
+config/profile-lyn/profile.json and run /profile reload.
+
+Editing the browser preview alone does not change the running server.
+ECO-API-lyn is optional and only needs to be installed on the server for balances.

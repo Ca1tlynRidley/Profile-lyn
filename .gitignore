@@ -12,3 +12,4 @@ Thumbs.db
 .openai/
 editor/.openai/
 *.zip
+!/PROFILE-lyn-editor-1.0.0.zip

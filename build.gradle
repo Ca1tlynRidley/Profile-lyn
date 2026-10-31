@@ -33,10 +33,26 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 25
     options.encoding = 'UTF-8'
 }
+def editorManifest = layout.buildDirectory.file('generated/editor/editor-assets.txt')
+tasks.register('generateEditorManifest') {
+    inputs.dir('editor/dist')
+    outputs.file(editorManifest)
+    doLast {
+        def directory = file('editor/dist').toPath()
+        def names = fileTree('editor/dist').files.collect {
+            directory.relativize(it.toPath()).toString().replace('\\', '/')
+        }.sort()
+        def output = editorManifest.get().asFile
+        output.parentFile.mkdirs()
+        output.setText(names.join('\n') + '\n', 'UTF-8')
+    }
+}
 processResources {
+    dependsOn tasks.named('generateEditorManifest')
     inputs.property 'version', project.version
     filesMatching('fabric.mod.json') { expand version: project.version }
     from('editor/dist') { into 'profile-studio-editor' }
+    from(editorManifest) { into 'profile-studio-editor' }
 }
 test { useJUnitPlatform() }
 jar { from('LICENSE') }

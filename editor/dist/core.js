@@ -59,7 +59,15 @@
     source.slot = to; if (target) target.slot = from;
     return copy;
   }
-  const core = {validate,encode,decode,move,MAX_CODE,MAX_BYTES};
+  function draftKey(layout, source) {
+    // Keep drafts separate for different server folders and exported layout snapshots.
+    let hash = 0xcbf29ce484222325n;
+    for (const character of source+'\n'+JSON.stringify(layout)) {
+      hash = BigInt.asUintN(64, (hash ^ BigInt(character.codePointAt(0))) * 0x100000001b3n);
+    }
+    return 'profile-lyn-draft-v2-'+hash.toString(16);
+  }
+  const core = {validate,encode,decode,move,draftKey,MAX_CODE,MAX_BYTES};
   root.ProfileCore = core;
   if (typeof module !== 'undefined' && module.exports) module.exports = core;
 })(globalThis);

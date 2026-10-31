@@ -10,17 +10,18 @@ import net.minecraft.network.chat.*;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.SimpleMenuProvider;
 import org.slf4j.LoggerFactory;
-import java.net.URI;
 
 public final class ProfileStudio implements ModInitializer {
-    public static final String EDITOR_URL = "https://octmc-profile-studio.alivedune257.chatgpt.site";
     private final LayoutStore store = new LayoutStore(FabricLoader.getInstance().getConfigDir().resolve("profile-lyn"));
+    private final LocalEditor editor = new LocalEditor(FabricLoader.getInstance().getConfigDir().resolve("profile-lyn"));
     private int ticks;
     @Override public void onInitialize() {
         ProfileEconomy.initialize(FabricLoader.getInstance().isModLoaded("eco_api_lyn"));
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             try { store.load(); }
             catch (Exception ex) { LoggerFactory.getLogger("PROFILE-lyn").error("Profile layout could not be loaded. Fix config/profile-lyn/profile.json and run /profile reload.", ex); }
+            try { editor.export(store.current()); }
+            catch (Exception ex) { LoggerFactory.getLogger("PROFILE-lyn").warn("Local editor could not be extracted. Check folder permissions and retry /profile editor.", ex); }
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (++ticks % 20 != 0) return;
@@ -44,11 +45,12 @@ public final class ProfileStudio implements ModInitializer {
                     closeMenus(ctx.getSource()); reply(ctx.getSource(), "Layout installed. Run /profile to open it. Previous file saved as profile.json.bak."); return 1;
                 }))));
             command.then(Commands.literal("editor").requires(ProfileStudio::admin).executes(ctx -> guarded(ctx.getSource(), () -> {
-                String code = LayoutCodec.encode(store.current());
-                String link = code.length() <= LayoutCodec.MAX_CODE ? EDITOR_URL + "/#layout=" + code : EDITOR_URL;
-                ctx.getSource().sendSuccess(() -> Component.literal("[Open PROFILE-lyn editor]").withStyle(style -> style.withUnderlined(true)
-                    .withColor(net.minecraft.ChatFormatting.AQUA).withClickEvent(new ClickEvent.OpenUrl(URI.create(link)))), false);
-                reply(ctx.getSource(), "Edit, then Export > Copy import command. JSON files go in config/profile-lyn/profile.json; use /profile reload."); return 1;
+                var file = editor.export(store.current());
+                reply(ctx.getSource(), "Local editor ready: config/profile-lyn/editor/index.html");
+                ctx.getSource().sendSuccess(() -> Component.literal("[Copy editor file path]").withStyle(style -> style.withUnderlined(true)
+                    .withColor(net.minecraft.ChatFormatting.AQUA).withClickEvent(new ClickEvent.CopyToClipboard(file.toString()))), false);
+                reply(ctx.getSource(), "Server on your PC: open that index.html in your browser. Hosted server: download config/profile-lyn/profile-editor.zip, extract it on your PC, then open editor/index.html.");
+                reply(ctx.getSource(), "No website or sign-in needed. Edit, then Export to server > Copy import command. Use it in OP chat, or in the server console without the leading /."); return 1;
             })));
             dispatcher.register(command);
         });

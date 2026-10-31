@@ -11,3 +11,27 @@ test('rejects invalid slots, duplicates, unknown items and dangerous action type
 test('clear layout exports as empty with no filler',()=>{const result=C.validate({...DEFAULT_LAYOUT,items:[],filler:null},known);assert.deepEqual(result.items,[]);assert.equal(result.filler,null);});
 test('rejects corrupt, oversized and unsupported codes',()=>{for(const code of ['hello','ps1:!!!','ps1:'+'a'.repeat(30001)])assert.throws(()=>C.decode(code,known));assert.throws(()=>C.validate({schemaVersion:2,items:[]},known));});
 test('rejects fractional counts and multiline commands',()=>{assert.throws(()=>C.validate({items:[{slot:0,item:'minecraft:emerald',count:1.5}]},known));assert.throws(()=>C.validate({items:[{slot:0,item:'minecraft:emerald',action:{type:'command',value:'balance\nop Steve'}}]},known));});
+
+test('browser drafts stay separate for different servers and refreshed server layouts',()=>{
+  const first=C.validate(DEFAULT_LAYOUT,known), second=C.validate({...DEFAULT_LAYOUT,title:'Updated server profile ♥'},known);
+  assert.notEqual(C.draftKey(first,'/server-a/editor/index.html'),C.draftKey(first,'/server-b/editor/index.html'));
+  assert.notEqual(C.draftKey(first,'/server-a/editor/index.html'),C.draftKey(second,'/server-a/editor/index.html'));
+  assert.equal(C.draftKey(first,'/server-a/editor/index.html'),C.draftKey(structuredClone(first),'/server-a/editor/index.html'));
+});
+
+test('the editor loads only bundled files and does not depend on hosted fonts or login pages',()=>{
+  const html=fs.readFileSync(__dirname+'/dist/index.html','utf8'),css=fs.readFileSync(__dirname+'/dist/style.css','utf8');
+  for(const match of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
+    assert.ok(!/^(?:https?:|\/\/)/.test(match[1]),match[1]);
+    assert.ok(fs.existsSync(__dirname+'/dist/'+match[1]),match[1]);
+  }
+  assert.ok(!/https?:\/\//.test(css));
+  assert.ok(html.includes('server-layout.js'));
+  assert.ok(!html.includes('client mod required'));
+});
+
+test('the source editor still opens with its starter template before a server exports a snapshot',()=>{
+  require('./dist/server-layout.js');
+  assert.equal(PROFILE_SERVER_LAYOUT,null);
+  assert.deepEqual(C.validate(PROFILE_SERVER_LAYOUT??DEFAULT_LAYOUT,known),C.validate(DEFAULT_LAYOUT,known));
+});
