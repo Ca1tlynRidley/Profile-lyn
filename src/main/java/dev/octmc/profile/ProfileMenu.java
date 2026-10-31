@@ -70,9 +70,15 @@ public final class ProfileMenu extends ChestMenu {
             case "message" -> owner.sendSystemMessage(ProfileText.component(ProfileText.replace(action.value(), owner, layout)));
             case "command" -> {
                 String command = ProfileText.replace(action.value(), owner, layout);
+                var commands = owner.level().getServer().getCommands();
+                String commandName = command.split("\\s+", 2)[0];
+                if (commands.getDispatcher().getRoot().getChild(commandName) == null) {
+                    owner.sendSystemMessage(Component.literal("This feature is unavailable: /" + commandName + " is not installed on this server."));
+                    return;
+                }
                 owner.closeContainer();
                 // Preserve the player's permissions. Never run menu commands as the console or elevate OP.
-                owner.level().getServer().getCommands().performPrefixedCommand(owner.createCommandSourceStack(), command);
+                commands.performPrefixedCommand(owner.createCommandSourceStack(), command);
             }
             default -> { }
         }

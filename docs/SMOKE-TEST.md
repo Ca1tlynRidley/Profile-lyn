@@ -1,8 +1,10 @@
 # Minecraft gameplay smoke test
 
-Use a backup/test world with Fabric 26.2, Loader 0.20.1+, Fabric API 0.161.0+26.2, Java 25+, PROFILE-lyn 1.0.0 and ECO-API-lyn 1.1.0. Accept Mojang's EULA yourself if setting up a new test server. Use Fabric 26.2 clients with Fabric API and matching ECO-API-lyn 1.1.0; use two test players for payments. A server with SHOP-MOD-lyn 1.1.0 also requires its matching client JAR.
+Use a backup/test world on a dedicated Fabric 26.2 server with Loader 0.20.1+, Fabric API 0.161.0+26.2, Java 25+ and PROFILE-lyn 1.0.0. ECO-API-lyn 1.0.0 is optional; install it for the payment checks. Accept Mojang's EULA yourself if setting up a test server. Use two test players for payments. PROFILE and ECO are server-only; clients do not install either mod.
 
-Before the gameplay checks, verify plain vanilla clients and Fabric clients missing ECO-API-lyn are refused with installation instructions. On a shop server, also try ECO without SHOP. Check that an older 1.0.0 JAR is refused, both matching 1.1.0 mods are admitted, and a client that advertises support but never replies is disconnected after the handshake timeout. Repeat after reconnecting and test an integrated singleplayer/LAN server too.
+First start with PROFILE and Fabric API only, without ECO or SHOP. Verify /profile opens, player/stats/location placeholders work, {money} shows "Unavailable", and the default balance/leaderboard buttons show a helpful message if their commands are absent. Test closing, refreshing, editing, importing and reloading without ECO. Then restart with ECO installed and run the checks below.
+
+Before the gameplay checks, verify ordinary vanilla 26.2 clients can join the PROFILE/ECO server and use /profile and the economy commands. If ECO-SHOP-lyn is installed, both server and clients also need ECO-SHOP-lyn 1.0.0 and Fabric API. In that setup, a client with SHOP but without ECO must join successfully; clients missing SHOP or carrying a mismatched SHOP version must be refused. PROFILE and ECO do not require a client installation handshake.
 
 1. Confirm both mods load and `/profile` opens the default six-row inventory.
 2. Give Alice `$100` using `/eco set Alice 100`. Check `/balance`, `/bal`, `/baltop`, and the emerald's hover text.
@@ -15,4 +17,4 @@ Before the gameplay checks, verify plain vanilla clients and Fabric clients miss
 9. Change inventory rows, import a Unicode title, and use the JSON download/reload route.
 10. Stop/restart the server. Confirm balances and the installed layout persist. Back up both the world and config before further testing.
 
-The automated tests exercise the economy ledger and layout/editor logic; they do not replace these multiplayer and inventory packet checks.
+The automated tests exercise optional economy class loading, live balance integration and layout/editor logic; they do not replace these multiplayer and inventory packet checks.

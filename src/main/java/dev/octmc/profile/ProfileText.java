@@ -1,6 +1,5 @@
 package dev.octmc.profile;
 
-import dev.lyn.eco.api.EcoApi;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,7 +11,7 @@ public final class ProfileText {
     public static String replace(String text, ServerPlayer player, Layout layout) {
         String result = text.replace("{player}", player.getScoreboardName())
                 .replace("{uuid}", player.getUUID().toString())
-                .replace("{money}", EcoApi.get().format(EcoApi.get().balance(player.getUUID())))
+                .replace("{money}", ProfileEconomy.balance(player.getUUID()))
                 .replace("{level}", Integer.toString(player.experienceLevel))
                 .replace("{health}", Integer.toString((int) Math.ceil(player.getHealth())))
                 .replace("{food}", Integer.toString(player.getFoodData().getFoodLevel()))

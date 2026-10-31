@@ -1,7 +1,6 @@
 package dev.octmc.profile;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
-import dev.lyn.eco.api.EcoApi;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.*;
@@ -18,6 +17,7 @@ public final class ProfileStudio implements ModInitializer {
     private final LayoutStore store = new LayoutStore(FabricLoader.getInstance().getConfigDir().resolve("profile-lyn"));
     private int ticks;
     @Override public void onInitialize() {
+        ProfileEconomy.initialize(FabricLoader.getInstance().isModLoaded("eco_api_lyn"));
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             try { store.load(); }
             catch (Exception ex) { LoggerFactory.getLogger("PROFILE-lyn").error("Profile layout could not be loaded. Fix config/profile-lyn/profile.json and run /profile reload.", ex); }
@@ -29,7 +29,7 @@ public final class ProfileStudio implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registry, environment) -> {
             var command = Commands.literal("profile").executes(ctx -> guarded(ctx.getSource(), () -> {
                 var player = ctx.getSource().getPlayerOrException();
-                EcoApi.get().ensureAccount(player.getUUID(), player.getScoreboardName());
+                ProfileEconomy.ensureAccount(player.getUUID(), player.getScoreboardName());
                 Layout layout = store.current();
                 player.openMenu(new SimpleMenuProvider((id, inventory, viewer) -> new ProfileMenu(id, inventory, player, layout), ProfileText.component(ProfileText.replace(layout.title(), player, layout))));
                 return 1;
