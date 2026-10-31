@@ -10,18 +10,18 @@ A profile menu mod for Minecraft Java 26.2 using Fabric. It displays player info
 
 ## Compatibility
 
-- ECO-API-lyn (optional, version 1.0.0 or newer)
+- ECO-API-lyn-1.0.0
 
-Install PROFILE-lyn 1.0.0 on the dedicated server only. Players do not need to install it. Add ECO-API-lyn to the server if you want the profile to display ECO balances; players do not need ECO either.
+Install PROFILE-lyn 1.0.0 on the dedicated server only. 
 
 Without ECO, the profile menu still works and the {money} placeholder shows "Unavailable". The default balance and leaderboard buttons need an economy mod that supplies /balance and /baltop; missing commands show an unavailable message. Custom menu commands keep the player's normal permissions.
 
 ## Usage
 
-- /profile opens the menu.
-- /profile editor opens the layout editor link.
-- /profile reload reloads the configuration.
-- /profile import imports a layout code from the editor.
+- /profile 
+- /profile editor 
+- /profile reload 
+- /profile import 
 
 The layout file is config/profile-lyn/profile.json. You can also open editor/dist/index.html locally to edit and export a layout. The included hosted editor has access controlled by its owner.
 
